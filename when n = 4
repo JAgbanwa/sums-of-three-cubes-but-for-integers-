@@ -1,0 +1,37 @@
+def solve_equation_complete():
+    N = 176688
+    constant = 729
+    
+    print(f"Solving: x² - ({constant} + y)x + {N} = 0")
+    print(f"Prime factorization of {N}: {factor(N)}")
+    
+    solutions = []
+    for x in divisors(N):
+        if x <= 0:
+            continue
+            
+        if N % x == 0:
+            y = x + N//x - constant
+            if y > 0 and y in ZZ:  # y is positive integer
+                solutions.append((x, y))
+    
+    # Remove duplicates and sort
+    solutions = sorted(set(solutions))
+    
+    print(f"\nFound {len(solutions)} positive integer solutions:")
+    for i, (x, y) in enumerate(solutions, 4):
+        # Verify the solution
+        lhs = x^2 - (constant + y)*x + N
+        status = "✓" if lhs == 0 else "✗"
+        print(f"{i}. x = {x}, y = {y} {status}")
+    
+    return solutions
+
+# Execute the solution
+solutions = solve_equation_complete()
+
+# Additional analysis
+print(f"\nDetailed verification:")
+for x, y in solutions:
+    calculated = x^2 - (729 + y)*x + 176688
+    print(f"x={x}, y={y}: {x}^2 - (729 + {y})*{x} + 176688 = {calculated}")
