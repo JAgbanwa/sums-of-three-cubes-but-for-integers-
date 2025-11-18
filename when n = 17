@@ -1,6 +1,6 @@
 def solve_equation_complete():
     N = 40515090
-    constant = 15129
+    constant = 11025
     
     print(f"Solving: x² - ({constant} + y)x + {N} = 0")
     print(f"Prime factorization of {N}: {factor(N)}")
@@ -33,5 +33,5 @@ solutions = solve_equation_complete()
 # Additional analysis
 print(f"\nDetailed verification:")
 for x, y in solutions:
-    calculated = x^2 - (15129+ y)*x + 40515090
-    print(f"x={x}, y={y}: {x}^2 - (15129 + {y})*{x} + 40515090 = {calculated}")
+    calculated = x^2 - (11025+ y)*x + 40515090
+    print(f"x={x}, y={y}: {x}^2 - (11025 + {y})*{x} + 40515090 = {calculated}")
