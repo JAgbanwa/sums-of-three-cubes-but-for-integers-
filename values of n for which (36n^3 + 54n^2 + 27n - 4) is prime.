@@ -1,0 +1,30 @@
+# Define the polynomial
+def f(n):
+    return 36*n^3 + 54*n^2 + 27*n - 4
+
+# Find prime values for n from 1 to 1000
+prime_values = []
+for n in range(1, 1001):
+    value = f(n)
+    if is_prime(value):
+        prime_values.append(n)
+
+print(f"Found {len(prime_values)} values of n that produce prime numbers:")
+print(f"n values: {prime_values}")
+
+# Optional: Show some examples
+print("\nFirst few examples:")
+for i, n in enumerate(prime_values[:10]):
+    print(f"n = {n}: f({n}) = {f(n)} (prime)")
+
+# Optional: Count statistics
+print(f"\nStatistics:")
+print(f"Total n values checked: 1000")
+print(f"Number of n values producing primes: {len(prime_values)}")
+print(f"Percentage: {float(len(prime_values))/10:.1f}%")
+
+# Optional: Verify a few primes
+print(f"\nVerification (first 3 values):")
+for n in prime_values[:3]:
+    result = f(n)
+    print(f"is_prime({result}) = {is_prime(result)}")
