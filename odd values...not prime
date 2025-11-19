@@ -1,0 +1,108 @@
+# Define the polynomial
+def f(n):
+    return 36*n^3 + 54*n^2 + 27*n - 4
+
+# Find composite values for ODD n from 1 to 1000
+composite_odd_values = []
+prime_odd_values = []
+
+for n in range(1, 1001, 2):  # Step by 2 to get only odd numbers
+    value = f(n)
+    if not is_prime(value):
+        composite_odd_values.append(n)
+    else:
+        prime_odd_values.append(n)
+
+print(f"Found {len(composite_odd_values)} ODD values of n that produce COMPOSITE numbers:")
+print(f"Composite odd n values: {composite_odd_values}")
+
+print(f"\nFound {len(prime_odd_values)} ODD values of n that produce PRIME numbers:")
+print(f"Prime odd n values: {prime_odd_values}")
+
+# Show factorization examples for some composite odd values
+print(f"\nFactorization examples (first 15 composite odd values):")
+for n in composite_odd_values[:15]:
+    value = f(n)
+    factors = factor(value)
+    print(f"n = {n}: f({n}) = {value} = {factors}")
+
+# Statistics for odd numbers only
+total_odd = len(composite_odd_values) + len(prime_odd_values)
+print(f"\nStatistics for ODD n values:")
+print(f"Total odd n values checked: {total_odd}")
+print(f"Composite results: {len(composite_odd_values)} ({float(len(composite_odd_values))/total_odd*100:.1f}%)")
+print(f"Prime results: {len(prime_odd_values)} ({float(len(prime_odd_values))/total_odd*100:.1f}%)")
+
+# Check for patterns in composite odd values
+print(f"\nPattern analysis for composite ODD values:")
+print(f"First 20 composite odd n values: {composite_odd_values[:20]}")
+print(f"Composite odd values mod 3: {[n % 3 for n in composite_odd_values[:20]]}")
+print(f"Composite odd values mod 6: {[n % 6 for n in composite_odd_values[:20]]}")
+
+# Find small factors that commonly divide the expression for odd n
+print(f"\nSmall factor analysis for ODD n:")
+small_factors_count = {2: 0, 3: 0, 5: 0, 7: 0, 11: 0, 13: 0, 17: 0, 19: 0}
+
+for n in composite_odd_values[:100]:  # Check first 100 for patterns
+    value = f(n)
+    for p in small_factors_count.keys():
+        if value % p == 0:
+            small_factors_count[p] += 1
+
+print("Frequency of small prime factors in composite values (odd n only):")
+for p, count in small_factors_count.items():
+    if count > 0:
+        print(f"  Divisible by {p}: {count} times")
+
+# Check if there's a pattern mod some number (FIXED VERSION)
+print(f"\nChecking for modular patterns:")
+for mod in [3, 5, 7, 11]:
+    composite_count_mod = [0] * mod
+    total_count_mod = [0] * mod
+    
+    for n in range(1, 1001, 2):  # Only odd n
+        value = f(n)
+        residue = n % mod
+        total_count_mod[residue] += 1
+        if not is_prime(value):
+            composite_count_mod[residue] += 1
+    
+    print(f"\nMod {mod} analysis for odd n:")
+    for r in range(mod):
+        if total_count_mod[r] > 0:
+            percentage = float(composite_count_mod[r]) / total_count_mod[r] * 100
+            print(f"  n ≡ {r} (mod {mod}): {composite_count_mod[r]}/{total_count_mod[r]} composite ({percentage:.1f}%)")
+
+# Special analysis: Check if polynomial always composite for certain residue classes
+print(f"\nSpecial residue classes where polynomial is ALWAYS composite for odd n:")
+for mod in [3, 5, 7]:
+    always_composite = []
+    for r in range(mod):
+        all_composite = True
+        count = 0
+        for n in range(1, min(1001, 100), 2):  # Check first few odd numbers
+            if n % mod == r:
+                count += 1
+                if is_prime(f(n)):
+                    all_composite = False
+                    break
+        if all_composite and count > 0:
+            always_composite.append(r)
+    
+    if always_composite:
+        print(f"  mod {mod}: n ≡ {always_composite} always give composites (in checked range)")
+
+# Verify a few cases
+print(f"\nVerification of first 5 composite odd values:")
+for n in composite_odd_values[:5]:
+    value = f(n)
+    print(f"n = {n} (odd): {value} = {factor(value)}")
+
+# Additional analysis: Check the polynomial value mod small primes for odd n
+print(f"\nPolynomial behavior mod small primes for odd n:")
+test_odd_n = [1, 3, 5, 7, 9]
+for p in [3, 5, 7, 11]:
+    print(f"\nMod {p}:")
+    for n in test_odd_n:
+        value = f(n)
+        print(f"  n={n}: f(n) ≡ {value % p} (mod {p})")
