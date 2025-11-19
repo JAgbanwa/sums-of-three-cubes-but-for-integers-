@@ -1,0 +1,71 @@
+# Define the polynomial
+def f(n):
+    return 36*n^3 + 54*n^2 + 27*n - 4
+
+# Find composite values for n from 1 to 1000
+composite_values = []
+prime_values = []
+
+for n in range(1, 1001):
+    value = f(n)
+    if not is_prime(value):
+        composite_values.append(n)
+    else:
+        prime_values.append(n)
+
+print(f"Found {len(composite_values)} values of n that produce COMPOSITE numbers:")
+print(f"Composite n values: {composite_values}")
+
+print(f"\nFound {len(prime_values)} values of n that produce PRIME numbers:")
+print(f"Prime n values: {prime_values}")
+
+# Show factorization examples for some composite values
+print(f"\nFactorization examples (first 10 composite values):")
+for n in composite_values[:10]:
+    value = f(n)
+    factors = factor(value)
+    print(f"n = {n}: f({n}) = {value} = {factors}")
+
+# Statistics
+print(f"\nStatistics:")
+print(f"Total n values checked: 1000")
+print(f"Composite results: {len(composite_values)} ({float(len(composite_values))/10:.1f}%)")
+print(f"Prime results: {len(prime_values)} ({float(len(prime_values))/10:.1f}%)")
+
+# Check for patterns in composite values
+print(f"\nPattern analysis for composite values:")
+print(f"Composite values mod 2: {[n % 2 for n in composite_values[:10]]}")
+print(f"Composite values mod 3: {[n % 3 for n in composite_values[:10]]}")
+print(f"Composite values mod 6: {[n % 6 for n in composite_values[:10]]}")
+
+# Find when the expression is definitely composite (has small factors)
+print(f"\nSmall factor analysis:")
+small_factors_count = {2: 0, 3: 0, 5: 0, 7: 0, 11: 0, 13: 0}
+
+for n in composite_values[:50]:  # Check first 50 for patterns
+    value = f(n)
+    for p in small_factors_count.keys():
+        if value % p == 0:
+            small_factors_count[p] += 1
+
+print("Frequency of small prime factors in composite values:")
+for p, count in small_factors_count.items():
+    if count > 0:
+        print(f"  Divisible by {p}: {count} times")
+
+# Alternative: Direct approach to find when polynomial has algebraic factorization
+print(f"\nChecking for algebraic factorizations:")
+# Try to see if polynomial can be written as (an+b)(cn^2+dn+e)
+print("Attempting to factor the polynomial algebraically...")
+R.<n> = PolynomialRing(QQ)
+poly = 36*n^3 + 54*n^2 + 27*n - 4
+print(f"Polynomial: {poly}")
+print(f"Does it factor over integers? {poly.factor()}")
+
+# Check specific values where we might expect composites
+print(f"\nSpecial cases:")
+for n in [1, 2, 3, 4, 5, 6, 10, 15, 20]:
+    value = f(n)
+    if not is_prime(value):
+        factors = factor(value)
+        print(f"n = {n}: {value} = {factors}")
