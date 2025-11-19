@@ -1,0 +1,183 @@
+I tried to run this Sage code but this is what I get:
+
+# SageMath code for computing rational points on elliptic curve
+# y^2 = x^3 - (102n + 51)*x - (432n^6 + 1296n^5 + 1620n^4 + 468n^3 - 513n^2 - 378n - 142)
+# For n = 77
+
+n = 77
+
+# Calculate coefficients
+a = - (102n + 51)
+b = - (432n^6 + 1296n^5 + 1620n^4 + 468n^3 - 513n^2 - 378n - 142)
+
+print("="*80)
+print(f"ELLIPTIC CURVE FOR n = {n}")
+print("="*80)
+print(f"Equation: y^2 = x^3 - (102n + 51)*x - (432n^6 + 1296n^5 + 1620n^4 + 468n^3 - 513n^2 - 378n - 142)")
+print(f"Substituting n = {n}:")
+print(f"  a = - (102*{n} + 51) = {a}")
+print(f"  b = -(432*{n}^6 + 1296*{n}^5 + 1620*{n}^4 + 468*{n}^3 - 513*{n}^2 - 378*{n} - 142) = -(432 + 1296 + 1620 + 468 - 513 - 378 - 142) = {b}")
+print(f"\nSimplified equation:")
+print(f"y^2 = x^3 + ({a})*x + ({b})")
+print("="*80)
+
+# Define the elliptic curve over Q
+E = EllipticCurve(QQ, [a, b])
+
+print(f"\nCurve object: {E}")
+print(f"Discriminant: {E.discriminant()}")
+print(f"j-invariant: {E.j_invariant()}")
+print(f"Is non-singular: {E.discriminant() != 0}")
+print("="*80)
+
+# Find rational points
+print("\nCOMPUTING RATIONAL POINTS...")
+print("This may take a moment for large coefficients...")
+print("="*80)
+
+rational_points = []
+
+# Try to find generators with increased limits
+print("\nAttempting Mordell-Weil group computation...")
+try:
+    gens = E.gens(descent_second_limit=25)
+    rank = E.rank()
+    print(f"✓ Rank of E(Q): {rank}")
+    print(f"✓ Number of generators: {len(gens)}")
+    
+    if gens:
+        for i, gen in enumerate(gens):
+            print(f"\nGenerator {i+1}: {gen}")
+            rational_points.append(gen)
+except Exception as e:
+    print(f"Mordell-Weil computation issue: {e}")
+    gens = []
+
+# Search for points with bounded height
+print("\n" + "="*80)
+print("SEARCHING FOR RATIONAL POINTS (height bound: 10^7)...")
+print("="*80)
+
+try:
+    points_found = E.point_search(10^7, verbose=False)
+    print(f"✓ Found {len(points_found)} total rational points")
+    
+    # Filter out the point at infinity and add to our list
+    for pt in points_found:
+        if not pt.is_zero() and pt not in rational_points:
+            rational_points.append(pt)
+            
+except Exception as e:
+    print(f"Point search encountered issue: {e}")
+    print("Trying with smaller bound...")
+    try:
+        points_found = E.point_search(10^6, verbose=False)
+        print(f"✓ Found {len(points_found)} points with reduced bound")
+        for pt in points_found:
+            if not pt.is_zero() and pt not in rational_points:
+                rational_points.append(pt)
+    except:
+        pass
+
+# Sort points by height (smallest first)
+if rational_points:
+    rational_points.sort(key=lambda P: P.height())
+
+print("\n" + "="*80)
+print(f"FIRST 5 RATIONAL POINTS AND THEIR MULTIPLES")
+print("="*80)
+
+if not rational_points:
+    print("\nNo non-trivial rational points found with current search bounds.")
+    print("The curve may have rank 0 or points at very high heights.")
+else:
+    # Take first 5 points (or fewer if we don't have 5)
+    num_points = min(5, len(rational_points))
+    
+    for idx in range(num_points):
+        P = rational_points[idx]
+        
+        print("\n" + "█"*80)
+        print(f"BASE POINT #{idx+1}")
+        print("█"*80)
+        print(f"Point: {P}")
+        print(f"Height: {P.height()}")
+        
+        # Display x and y coordinates
+        if not P.is_zero():
+            x_coord = P[0]
+            y_coord = P[1]
+            print(f"\nCoordinates:")
+            print(f"x = {x_coord}")
+            print(f"y = {y_coord}")
+            
+            # Show if coordinates are integers or fractions
+            if x_coord.denominator() == 1:
+                print(f"x is an integer: {x_coord.numerator()}")
+            else:
+                print(f"x = {x_coord.numerator()}/{x_coord.denominator()}")
+                
+            if y_coord.denominator() == 1:
+                print(f"y is an integer: {y_coord.numerator()}")
+            else:
+                print(f"y = {y_coord.numerator()}/{y_coord.denominator()}")
+        
+        print("\n" + "-"*80)
+        print("MULTIPLES:")
+        print("-"*80)
+        
+        # Compute multiples 1P through 5P
+        for k in range(1, 6):
+            kP = k * P
+            
+            print(f"\n{k}P:")
+            
+            if kP.is_zero():
+                print("  → Point at infinity (O)")
+            else:
+                x_k = kP[0]
+                y_k = kP[1]
+                
+                print(f"  x = {x_k}")
+                print(f"  y = {y_k}")
+                
+                # Verify it's on the curve
+                lhs = y_k^2
+                rhs = x_k^3 + a*x_k + b
+                
+                if lhs == rhs:
+                    print(f"  ✓ Verified on curve")
+                else:
+                    print(f"  ✗ ERROR: Not on curve!")
+                
+                # Show sizes
+                if x_k.denominator() == 1:
+                    print(f"  x is integer with {len(str(x_k.numerator()))} digits")
+                else:
+                    print(f"  x numerator: {len(str(x_k.numerator()))} digits, denominator: {len(str(x_k.denominator()))} digits")
+                
+                # Try to show decimal approximation for reasonable sizes
+                try:
+                    if abs(float(x_k)) < 10^10 and abs(float(y_k)) < 10^10:
+                        print(f"  ≈ ({float(x_k):.6f}, {float(y_k):.6f})")
+                except:
+                    print(f"  (coordinates too large for decimal display)")
+
+print("\n" + "="*80)
+print("COMPUTATION COMPLETE")
+print("="*80)
+
+# Summary statistics
+if rational_points:
+    print(f"\nTotal rational points found: {len(rational_points)}")
+    print(f"Displayed: {min(5, len(rational_points))} base points with their multiples (1P through 5P)")
+else:
+    print("\nNo rational points found. Consider:")
+    print("  - Increasing descent_second_limit further")
+    print("  - Using saturation techniques")
+    print("  - Checking if the curve has rank 0")
+
+  Cell In[3], line 8
+    a = - (102n + Integer(51))
+             ^
+SyntaxError: invalid decimal literal
