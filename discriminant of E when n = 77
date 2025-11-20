@@ -1,0 +1,111 @@
+# Define the expression
+n = 77
+
+# Numerator polynomial
+numerator = (-80621568*n^12 - 483729408*n^11 - 1330255872*n^10 - 1988665344*n^9 
+             - 1466304768*n^8 + 60466176*n^7 + 1099681920*n^6 + 895515264*n^5 
+             + 237910608*n^4 - 42206400*n^3 - 22788864*n^2 + 4561920*n - 221184)
+
+# Denominator
+denominator = 757473^2
+
+# Compute the value
+result = numerator / denominator
+
+print("COMPUTATION OF RATIONAL EXPRESSION")
+print("="*50)
+print(f"n = {n}")
+print(f"\nNumerator:")
+print(f"  {numerator}")
+print(f"\nDenominator:")
+print(f"  757473² = {denominator}")
+print(f"\nResult:")
+print(f"  {result}")
+print(f"  As exact fraction: {result}")
+print(f"  Decimal approximation: {result.n()}")
+
+# Let's also compute it step by step to verify
+print(f"\n" + "="*50)
+print("STEP-BY-STEP VERIFICATION")
+print("="*50)
+
+# Compute powers of n
+n2 = n^2
+n3 = n^3
+n4 = n^4
+n5 = n^5
+n6 = n^6
+n7 = n^7
+n8 = n^8
+n9 = n^9
+n10 = n^10
+n11 = n^11
+n12 = n^12
+
+print(f"n²  = {n2}")
+print(f"n³  = {n3}")
+print(f"n⁴  = {n4}")
+print(f"n⁵  = {n5}")
+print(f"n⁶  = {n6}")
+print(f"n⁷  = {n7}")
+print(f"n⁸  = {n8}")
+print(f"n⁹  = {n9}")
+print(f"n¹⁰ = {n10}")
+print(f"n¹¹ = {n11}")
+print(f"n¹² = {n12}")
+
+# Compute each term
+terms = [
+    (-80621568 * n12, "-80621568*n¹²"),
+    (-483729408 * n11, "-483729408*n¹¹"),
+    (-1330255872 * n10, "-1330255872*n¹⁰"),
+    (-1988665344 * n9, "-1988665344*n⁹"),
+    (-1466304768 * n8, "-1466304768*n⁸"),
+    (60466176 * n7, "60466176*n⁷"),
+    (1099681920 * n6, "1099681920*n⁶"),
+    (895515264 * n5, "895515264*n⁵"),
+    (237910608 * n4, "237910608*n⁴"),
+    (-42206400 * n3, "-42206400*n³"),
+    (-22788864 * n2, "-22788864*n²"),
+    (4561920 * n, "4561920*n"),
+    (-221184, "-221184")
+]
+
+print(f"\nIndividual terms:")
+total = 0
+for value, desc in terms:
+    print(f"  {desc:25} = {value}")
+    total += value
+
+print(f"\nSum of numerator terms: {total}")
+print(f"Matches direct computation: {total == numerator}")
+
+final_result = total / denominator
+print(f"\nFinal result: {final_result}")
+print(f"Matches direct result: {final_result == result}")
+
+# Simplify if possible
+print(f"\n" + "="*50)
+print("SIMPLIFICATION")
+print("="*50)
+
+# Check if numerator and denominator have common factors
+gcd_val = gcd(numerator, denominator)
+print(f"GCD of numerator and denominator: {gcd_val}")
+
+if gcd_val > 1:
+    simplified_num = numerator // gcd_val
+    simplified_den = denominator // gcd_val
+    simplified_result = simplified_num / simplified_den
+    print(f"Simplified fraction: {simplified_num}/{simplified_den}")
+    print(f"Simplified value: {simplified_result}")
+else:
+    print("Fraction is already in simplest form")
+
+# Additional analysis
+print(f"\n" + "="*50)
+print("ADDITIONAL ANALYSIS")
+print("="*50)
+print(f"Numerator magnitude: ~10^{len(str(abs(numerator)))}")
+print(f"Denominator: {denominator}")
+print(f"Result magnitude: ~10^{len(str(abs(result.numerator())))}")
