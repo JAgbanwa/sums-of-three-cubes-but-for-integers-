@@ -1,0 +1,307 @@
+# Define the polynomial
+def f(n):
+    return 36*n^3 + 54*n^2 + 27*n - 4
+
+# Find composite values for ODD n from 1 to 1000
+odd_composite_values = []
+odd_prime_values = []
+even_composite_values = []
+even_prime_values = []
+
+for n in range(1, 1001):
+    value = f(n)
+    if n % 2 == 1:  # Odd n
+        if not is_prime(value):
+            odd_composite_values.append(n)
+        else:
+            odd_prime_values.append(n)
+    else:  # Even n
+        if not is_prime(value):
+            even_composite_values.append(n)
+        else:
+            even_prime_values.append(n)
+
+print("BASIC RESULTS FOR ODD n VALUES")
+print("="*60)
+print(f"Found {len(odd_composite_values)} ODD values of n that produce COMPOSITE numbers")
+print(f"Found {len(odd_prime_values)} ODD values of n that produce PRIME numbers")
+print(f"Total odd n values checked: {len([x for x in range(1, 1001) if x % 2 == 1])}")
+print(f"Odd composite percentage: {float(len(odd_composite_values))/50:.1f}%")
+print(f"Odd prime percentage: {float(len(odd_prime_values))/50:.1f}%")
+
+print(f"\nComparison with even n values:")
+print(f"Even composites: {len(even_composite_values)}, Even primes: {len(even_prime_values)}")
+
+# COMPREHENSIVE MODULO ANALYSIS FOR ODD COMPOSITE VALUES
+print("\n" + "="*60)
+print("MODULO ANALYSIS OF ODD COMPOSITE n VALUES")
+print("="*60)
+
+# Since we're dealing with odd numbers, test moduli that reveal patterns
+moduli_to_test = [2, 3, 4, 6, 8, 12, 24]
+
+for mod in moduli_to_test:
+    print(f"\nModulo {mod} analysis for odd composites:")
+    residue_counts = {r: 0 for r in range(mod)}
+    total_odd_composite = len(odd_composite_values)
+    
+    for n in odd_composite_values:
+        residue = n % mod
+        residue_counts[residue] += 1
+    
+    # Calculate percentages and identify patterns
+    for r in range(mod):
+        count = residue_counts[r]
+        if count > 0:  # Only show residues that actually occur
+            percentage = float(count / total_odd_composite * 100) if total_odd_composite > 0 else 0
+            # For odd numbers, show which residues are odd
+            parity_note = " (odd)" if r % 2 == 1 else " (even)"
+            print(f"  n ≡ {r} (mod {mod}): {count} composites ({percentage:.1f}%){parity_note}")
+
+# SPECIAL ANALYSIS FOR ODD NUMBERS
+print("\n" + "="*60)
+print("SPECIAL ANALYSIS FOR ODD n VALUES")
+print("="*60)
+
+# Focus on mod 4 and mod 6 patterns (most revealing for odd numbers)
+print("\nDetailed Mod 4 analysis for odd composites:")
+mod4_counts = {r: [] for r in range(4)}
+
+for n in odd_composite_values:
+    residue = n % 4
+    mod4_counts[residue].append(n)
+
+for r in range(4):
+    count = len(mod4_counts[r])
+    if count > 0:
+        percentage = float(count / len(odd_composite_values) * 100) if odd_composite_values else 0
+        examples = mod4_counts[r][:5] if mod4_counts[r] else []
+        parity = "odd" if r % 2 == 1 else "even"
+        print(f"  n ≡ {r} (mod 4): {count} composites ({percentage:.1f}%) - {parity} n values")
+        if examples:
+            print(f"    Examples: {examples}")
+
+print("\nDetailed Mod 6 analysis for odd composites:")
+mod6_counts = {r: [] for r in range(6)}
+
+for n in odd_composite_values:
+    residue = n % 6
+    mod6_counts[residue].append(n)
+
+for r in range(6):
+    count = len(mod6_counts[r])
+    if count > 0:
+        percentage = float(count / len(odd_composite_values) * 100) if odd_composite_values else 0
+        examples = mod6_counts[r][:5] if mod6_counts[r] else []
+        parity = "odd" if r % 2 == 1 else "even"
+        print(f"  n ≡ {r} (mod 6): {count} composites ({percentage:.1f}%) - {parity} n values")
+        if examples:
+            print(f"    Examples: {examples}")
+
+# CHECK FOR SYSTEMATIC PATTERNS
+print("\n" + "="*60)
+print("SYSTEMATIC PATTERN DETECTION")
+print("="*60)
+
+# Check if certain odd residues ALWAYS give composites
+print("Odd residues that ALWAYS give composites (in range 1-1000):")
+for mod in [2, 4, 6, 8]:
+    for r in range(mod):
+        if r % 2 == 1:  # Only consider odd residues
+            total_odd_in_residue = len([x for x in range(1, 1001) if x % mod == r and x % 2 == 1])
+            composite_odd_in_residue = len([n for n in odd_composite_values if n % mod == r])
+            if total_odd_in_residue > 0 and composite_odd_in_residue == total_odd_in_residue:
+                print(f"  ★ n ≡ {r} (mod {mod}) ALWAYS gives composites for odd n!")
+
+# Check if certain odd residues NEVER give primes
+print(f"\nOdd residues that NEVER give primes (in range 1-1000):")
+for mod in [2, 4, 6]:
+    for r in range(mod):
+        if r % 2 == 1:  # Only odd residues
+            total_odd_in_residue = len([x for x in range(1, 1001) if x % mod == r and x % 2 == 1])
+            prime_odd_in_residue = len([n for n in odd_prime_values if n % mod == r])
+            if total_odd_in_residue > 0 and prime_odd_in_residue == 0:
+                print(f"  n ≡ {r} (mod {mod}) gives 0 primes out of {total_odd_in_residue} odd values")
+
+# ALGEBRAIC ANALYSIS FOR ODD n
+print("\n" + "="*60)
+print("ALGEBRAIC ANALYSIS FOR ODD n")
+print("="*60)
+
+# Substitute n = 2k+1 to see the polynomial structure for odd n
+R.<k> = PolynomialRing(QQ)
+poly_odd = f(2*k + 1)  # f(n) with n = 2k+1
+print(f"Polynomial for odd n (n = 2k+1):")
+print(f"f(2k+1) = {poly_odd}")
+
+# Factor the odd polynomial
+factorization_odd = poly_odd.factor()
+print(f"Factorization: {factorization_odd}")
+
+# Check if it always has small factors for odd n
+print(f"\nChecking for small factors in f(2k+1):")
+for p in [2, 3, 5, 7, 11, 13]:
+    poly_mod_p = poly_odd.change_ring(GF(p))
+    print(f"  Mod {p}: f(2k+1) ≡ {poly_mod_p}")
+    try:
+        # Use multiplicities=False to avoid the NotImplementedError
+        roots = poly_mod_p.roots(multiplicities=False)
+        if roots:
+            print(f"    Always divisible by {p} when: {[f'k ≡ {r} (mod {p})' for r in roots]}")
+        else:
+            print(f"    No roots mod {p}")
+    except Exception as e:
+        print(f"    Error finding roots mod {p}: {e}")
+
+# Check the actual polynomial values for small odd n
+print(f"\nPolynomial behavior for small odd n:")
+for n in [1, 3, 5, 7, 9]:
+    value = f(n)
+    factors = factor(value) if not is_prime(value) else "PRIME"
+    print(f"  n = {n}: f({n}) = {value} = {factors}")
+
+# Check divisibility patterns directly
+print(f"\nDirect divisibility analysis for odd n:")
+for p in [2, 3, 5, 7, 11, 13]:
+    divisible_count = 0
+    for n in odd_composite_values[:20]:  # Check first 20 odd composites
+        if f(n) % p == 0:
+            divisible_count += 1
+    if divisible_count > 0:
+        percentage = float(divisible_count / 20 * 100)
+        print(f"  Divisible by {p}: {divisible_count}/20 ({percentage:.1f}%) of first odd composites")
+
+# DENSITY ANALYSIS FOR ODD n
+print("\n" + "="*60)
+print("DENSITY ANALYSIS FOR ODD n")
+print("="*60)
+
+# Analyze density in ranges for odd numbers only
+ranges = [(1, 100), (101, 200), (201, 300), (301, 400), (401, 500),
+          (501, 600), (601, 700), (701, 800), (801, 900), (901, 1000)]
+
+print("Odd composite density by range:")
+for start, end in ranges:
+    if start % 2 == 0:
+        start += 1  # Ensure we start with odd number
+    total_odd_in_range = len([x for x in range(start, end+1) if x % 2 == 1])
+    composite_odd_in_range = len([n for n in odd_composite_values if start <= n <= end])
+    density = float(composite_odd_in_range / total_odd_in_range * 100) if total_odd_in_range > 0 else 0
+    
+    print(f"  n = {start}-{end} (odd): {composite_odd_in_range}/{total_odd_in_range} composites ({density:.1f}%)")
+
+# COMPARISON WITH EVEN n
+print("\n" + "="*60)
+print("COMPARISON: ODD vs EVEN n")
+print("="*60)
+
+total_odd = len(odd_composite_values) + len(odd_prime_values)
+total_even = len(even_composite_values) + len(even_prime_values)
+
+odd_composite_rate = float(len(odd_composite_values) / total_odd * 100) if total_odd > 0 else 0
+even_composite_rate = float(len(even_composite_values) / total_even * 100) if total_even > 0 else 0
+
+print(f"Composite rates:")
+print(f"  Odd n:  {len(odd_composite_values)}/{total_odd} = {odd_composite_rate:.1f}%")
+print(f"  Even n: {len(even_composite_values)}/{total_even} = {even_composite_rate:.1f}%")
+
+if odd_composite_rate > even_composite_rate:
+    print(f"★ Odd n values are MORE LIKELY to produce composites")
+elif odd_composite_rate < even_composite_rate:
+    print(f"★ Even n values are MORE LIKELY to produce composites")
+else:
+    print(f"★ Odd and even n values are equally likely to produce composites")
+
+# ARITHMETIC PROGRESSIONS IN ODD COMPOSITES
+print("\n" + "="*60)
+print("ARITHMETIC PROGRESSIONS IN ODD COMPOSITES")
+print("="*60)
+
+# Look for arithmetic progressions specifically in odd composite values
+def find_odd_arithmetic_progressions(values, max_diff=20, min_length=5):
+    progressions = []
+    values_sorted = sorted(values)
+    
+    for i in range(len(values_sorted)):
+        for j in range(i+1, min(i+100, len(values_sorted))):
+            diff = values_sorted[j] - values_sorted[i]
+            if diff > 0 and diff <= max_diff and diff % 2 == 0:  # Even difference maintains odd numbers
+                # Check if this forms a progression
+                progression = [values_sorted[i], values_sorted[j]]
+                next_val = values_sorted[j] + diff
+                while next_val in values_sorted and len(progression) < min_length:
+                    progression.append(next_val)
+                    next_val += diff
+                
+                if len(progression) >= min_length:
+                    progressions.append((diff, progression))
+    
+    return progressions
+
+odd_composite_progressions = find_odd_arithmetic_progressions(odd_composite_values)
+if odd_composite_progressions:
+    print("Found arithmetic progressions in odd composite values:")
+    for diff, progression in odd_composite_progressions[:3]:  # Show first 3
+        print(f"  Difference {diff}: {progression}")
+else:
+    print("No significant arithmetic progressions found in odd composites")
+
+# SPECIAL MODULO 8 ANALYSIS (important for odd numbers)
+print("\n" + "="*60)
+print("SPECIAL MODULO 8 ANALYSIS FOR ODD n")
+print("="*60)
+
+mod8_counts = {r: [] for r in range(8)}
+
+for n in odd_composite_values:
+    residue = n % 8
+    mod8_counts[residue].append(n)
+
+print("Mod 8 distribution for odd composites:")
+for r in range(8):
+    if r % 2 == 1:  # Only odd residues (1, 3, 5, 7)
+        count = len(mod8_counts[r])
+        if count > 0:
+            percentage = float(count / len(odd_composite_values) * 100) if odd_composite_values else 0
+            print(f"  n ≡ {r} (mod 8): {count} composites ({percentage:.1f}%)")
+
+# FINAL SUMMARY FOR ODD n PATTERNS
+print("\n" + "="*60)
+print("KEY PATTERNS FOR ODD n VALUES")
+print("="*60)
+
+print("Most significant patterns for odd n:")
+
+# 1. Dominant mod 4 residues (only odd ones: 1, 3)
+mod4_odd_counts = [len([n for n in odd_composite_values if n % 4 == r]) for r in [1,3]]
+print(f"1. Mod 4: {mod4_odd_counts[0]} ≡ 1, {mod4_odd_counts[1]} ≡ 3")
+
+# 2. Dominant mod 6 residues (only odd ones: 1, 3, 5)
+mod6_odd_counts = [len([n for n in odd_composite_values if n % 6 == r]) for r in [1,3,5]]
+print(f"2. Mod 6: {mod6_odd_counts[0]} ≡ 1, {mod6_odd_counts[1]} ≡ 3, {mod6_odd_counts[2]} ≡ 5")
+
+# 3. First few odd composite values
+print(f"3. First 10 odd composite n values: {odd_composite_values[:10]}")
+
+# 4. First few odd prime values
+if odd_prime_values:
+    print(f"4. First 10 odd n values that produce primes: {odd_prime_values[:10]}")
+else:
+    print(f"4. No odd n values produce primes in range 1-1000")
+
+# 5. Show some factorizations for odd n
+print(f"\n5. Factorization examples for odd n:")
+for n in odd_composite_values[:5]:
+    value = f(n)
+    factors = factor(value)
+    print(f"   n = {n}: f({n}) = {value} = {factors}")
+
+# 6. Check if there's a pattern with prime n values
+print(f"\n6. Analysis of odd prime-producing n values:")
+if odd_prime_values:
+    print(f"   Mod 4 of prime-producing odd n: {[n % 4 for n in odd_prime_values[:10]]}")
+    print(f"   Mod 6 of prime-producing odd n: {[n % 6 for n in odd_prime_values[:10]]}")
+
+print("\n" + "="*60)
+print("ODD n ANALYSIS COMPLETE")
+print("="*60)
