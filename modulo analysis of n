@@ -1,0 +1,223 @@
+# Define the polynomial
+def f(n):
+    return 36*n^3 + 54*n^2 + 27*n - 4
+
+# Find composite values for n from 1 to 1000
+composite_values = []
+prime_values = []
+
+for n in range(1, 1001):
+    value = f(n)
+    if not is_prime(value):
+        composite_values.append(n)
+    else:
+        prime_values.append(n)
+
+print("BASIC RESULTS")
+print("="*60)
+print(f"Found {len(composite_values)} values of n that produce COMPOSITE numbers")
+print(f"Found {len(prime_values)} values of n that produce PRIME numbers")
+print(f"Total n values checked: 1000")
+print(f"Composite percentage: {float(len(composite_values))/10:.1f}%")
+print(f"Prime percentage: {float(len(prime_values))/10:.1f}%")
+
+# COMPREHENSIVE MODULO ANALYSIS
+print("\n" + "="*60)
+print("COMPREHENSIVE MODULO ANALYSIS OF COMPOSITE n VALUES")
+print("="*60)
+
+# Analyze modulo patterns for various moduli
+moduli_to_test = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+for mod in moduli_to_test:
+    print(f"\nModulo {mod} analysis:")
+    residue_counts = {r: 0 for r in range(mod)}
+    total_composite = len(composite_values)
+    
+    for n in composite_values:
+        residue = n % mod
+        residue_counts[residue] += 1
+    
+    # Calculate percentages and identify patterns
+    for r in range(mod):
+        count = residue_counts[r]
+        percentage = float(count / total_composite * 100) if total_composite > 0 else 0  # Convert to float
+        print(f"  n ≡ {r} (mod {mod}): {count} composites ({percentage:.1f}%)")
+    
+    # Identify residues that ALWAYS give composites (if any)
+    always_composite = []
+    for r in range(mod):
+        # Count how many n ≡ r (mod mod) in range 1-1000
+        total_in_residue = len([x for x in range(1, 1001) if x % mod == r])
+        composite_in_residue = residue_counts[r]
+        if total_in_residue > 0 and composite_in_residue == total_in_residue:
+            always_composite.append(r)
+    
+    if always_composite:
+        print(f"  ★ n ≡ {always_composite} (mod {mod}) ALWAYS gives composites!")
+
+# SPECIAL MODULO ANALYSIS FOR KEY MODULI
+print("\n" + "="*60)
+print("SPECIAL MODULO ANALYSIS")
+print("="*60)
+
+# Focus on mod 6 (often important for cubic polynomials)
+print("\nDetailed Mod 6 analysis:")
+mod6_counts = {r: [] for r in range(6)}  # Store actual n values
+
+for n in composite_values:
+    residue = n % 6
+    mod6_counts[residue].append(n)
+
+for r in range(6):
+    count = len(mod6_counts[r])
+    percentage = float(count / len(composite_values) * 100) if composite_values else 0  # Convert to float
+    examples = mod6_counts[r][:5] if mod6_counts[r] else []
+    print(f"  n ≡ {r} (mod 6): {count} composites ({percentage:.1f}%)")
+    if examples:
+        print(f"    Examples: {examples}")
+
+# Check if certain residues NEVER give primes
+print(f"\nResidues that NEVER give primes (in range 1-1000):")
+for mod in [2, 3, 6]:
+    for r in range(mod):
+        total_in_residue = len([x for x in range(1, 1001) if x % mod == r])
+        prime_in_residue = len([n for n in prime_values if n % mod == r])
+        if total_in_residue > 0 and prime_in_residue == 0:
+            print(f"  n ≡ {r} (mod {mod}) gives 0 primes out of {total_in_residue} values")
+
+# ALGEBRAIC FACTORIZATION ANALYSIS
+print("\n" + "="*60)
+print("ALGEBRAIC FACTORIZATION ANALYSIS")
+print("="*60)
+
+R.<n> = PolynomialRing(QQ)
+poly = 36*n^3 + 54*n^2 + 27*n - 4
+print(f"Polynomial: f(n) = {poly}")
+factorization = poly.factor()
+print(f"Factorization over Q: {factorization}")
+
+# Check if polynomial factors over integers
+print(f"\nChecking for integer roots (n where f(n) = 0):")
+roots = poly.roots()
+if roots:
+    for root, multiplicity in roots:
+        print(f"  Root: n = {root} (multiplicity {multiplicity})")
+else:
+    print("  No rational roots")
+
+# Check modulo p behavior for small primes
+print(f"\nModulo p behavior of polynomial:")
+small_primes = [2, 3, 5, 7, 11, 13]
+for p in small_primes:
+    # Reduce polynomial modulo p
+    poly_mod_p = poly.change_ring(GF(p))
+    print(f"  Mod {p}: f(n) ≡ {poly_mod_p}")
+    
+    # Count roots modulo p
+    roots_mod_p = poly_mod_p.roots()
+    if roots_mod_p:
+        print(f"    Roots mod {p}: {[r[0] for r in roots_mod_p]}")
+    else:
+        print(f"    No roots mod {p}")
+
+# PATTERN IDENTIFICATION
+print("\n" + "="*60)
+print("PATTERN IDENTIFICATION")
+print("="*60)
+
+# Look for arithmetic progressions in composite values
+print("Checking for arithmetic progressions in composite n values:")
+
+# Check if composite values form arithmetic progressions
+def find_arithmetic_progressions(values, max_diff=10, min_length=5):
+    progressions = []
+    values_sorted = sorted(values)
+    
+    for i in range(len(values_sorted)):
+        for j in range(i+1, min(i+50, len(values_sorted))):
+            diff = values_sorted[j] - values_sorted[i]
+            if diff > 0 and diff <= max_diff:
+                # Check if this forms a progression
+                progression = [values_sorted[i], values_sorted[j]]
+                next_val = values_sorted[j] + diff
+                while next_val in values_sorted and len(progression) < min_length:
+                    progression.append(next_val)
+                    next_val += diff
+                
+                if len(progression) >= min_length:
+                    progressions.append((diff, progression))
+    
+    return progressions
+
+composite_progressions = find_arithmetic_progressions(composite_values)
+if composite_progressions:
+    print("Found arithmetic progressions in composite values:")
+    for diff, progression in composite_progressions[:5]:  # Show first 5
+        print(f"  Difference {diff}: {progression[:10]}...")  # Show first 10 terms
+else:
+    print("No significant arithmetic progressions found")
+
+# DENSITY ANALYSIS
+print("\n" + "="*60)
+print("DENSITY ANALYSIS")
+print("="*60)
+
+# Analyze how density changes with n
+ranges = [(1, 100), (101, 200), (201, 300), (301, 400), (401, 500),
+          (501, 600), (601, 700), (701, 800), (801, 900), (901, 1000)]
+
+print("Composite density by range:")
+for start, end in ranges:
+    total_in_range = end - start + 1
+    composite_in_range = len([n for n in composite_values if start <= n <= end])
+    prime_in_range = len([n for n in prime_values if start <= n <= end])
+    composite_density = float(composite_in_range / total_in_range * 100)  # Convert to float
+    
+    print(f"  n = {start}-{end}: {composite_in_range}/{total_in_range} composites ({composite_density:.1f}%)")
+
+# FINAL SUMMARY OF KEY PATTERNS
+print("\n" + "="*60)
+print("KEY PATTERNS SUMMARY")
+print("="*60)
+
+# Identify the most significant patterns
+print("Most significant patterns found:")
+
+# 1. Check mod 2 pattern
+even_composite = len([n for n in composite_values if n % 2 == 0])
+odd_composite = len([n for n in composite_values if n % 2 == 1])
+print(f"1. Parity: {even_composite} even composites, {odd_composite} odd composites")
+
+# 2. Check mod 3 pattern  
+mod3_counts = [len([n for n in composite_values if n % 3 == r]) for r in [0,1,2]]
+print(f"2. Mod 3: {mod3_counts[0]} ≡ 0, {mod3_counts[1]} ≡ 1, {mod3_counts[2]} ≡ 2")
+
+# 3. Check mod 6 pattern (combines mod 2 and mod 3)
+mod6_counts = [len([n for n in composite_values if n % 6 == r]) for r in range(6)]
+print(f"3. Mod 6: {mod6_counts}")
+
+# 4. Identify residues with highest composite density
+print("4. Residues with highest composite density:")
+for mod in [2, 3, 6]:
+    for r in range(mod):
+        total = len([x for x in range(1, 1001) if x % mod == r])
+        composite = len([n for n in composite_values if n % mod == r])
+        density = float(composite / total * 100) if total > 0 else 0  # Convert to float
+        if density > 80:  # High density threshold
+            print(f"   n ≡ {r} (mod {mod}): {density:.1f}% composite")
+
+# 5. Smallest composite n values
+print(f"5. First 10 composite n values: {composite_values[:10]}")
+print(f"6. First 10 prime n values: {prime_values[:10]}")
+
+# Show some factorization examples
+print(f"\n7. Factorization examples:")
+for n in composite_values[:5]:
+    value = f(n)
+    factors = factor(value)
+    print(f"   n = {n}: f({n}) = {value} = {factors}")
+
+print("\n" + "="*60)
+print("ANALYSIS COMPLETE")
+print("="*60)
