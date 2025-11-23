@@ -1,0 +1,281 @@
+# Define the polynomial
+def f(n):
+    return 36*n^3 + 54*n^2 + 27*n - 4
+
+# Find composite values for EVEN n from 1 to 1000
+even_composite_values = []
+even_prime_values = []
+odd_composite_values = []
+odd_prime_values = []
+
+for n in range(1, 1001):
+    value = f(n)
+    if n % 2 == 0:  # Even n
+        if not is_prime(value):
+            even_composite_values.append(n)
+        else:
+            even_prime_values.append(n)
+    else:  # Odd n
+        if not is_prime(value):
+            odd_composite_values.append(n)
+        else:
+            odd_prime_values.append(n)
+
+print("BASIC RESULTS FOR EVEN n VALUES")
+print("="*60)
+print(f"Found {len(even_composite_values)} EVEN values of n that produce COMPOSITE numbers")
+print(f"Found {len(even_prime_values)} EVEN values of n that produce PRIME numbers")
+print(f"Total even n values checked: {len([x for x in range(1, 1001) if x % 2 == 0])}")
+print(f"Even composite percentage: {float(len(even_composite_values))/50:.1f}%")
+print(f"Even prime percentage: {float(len(even_prime_values))/50:.1f}%")
+
+print(f"\nComparison with odd n values:")
+print(f"Odd composites: {len(odd_composite_values)}, Odd primes: {len(odd_prime_values)}")
+
+# COMPREHENSIVE MODULO ANALYSIS FOR EVEN COMPOSITE VALUES
+print("\n" + "="*60)
+print("MODULO ANALYSIS OF EVEN COMPOSITE n VALUES")
+print("="*60)
+
+# Since we're dealing with even numbers, test moduli that reveal patterns
+moduli_to_test = [2, 3, 4, 6, 8, 12, 24]
+
+for mod in moduli_to_test:
+    print(f"\nModulo {mod} analysis for even composites:")
+    residue_counts = {r: 0 for r in range(mod)}
+    total_even_composite = len(even_composite_values)
+    
+    for n in even_composite_values:
+        residue = n % mod
+        residue_counts[residue] += 1
+    
+    # Calculate percentages and identify patterns
+    for r in range(mod):
+        count = residue_counts[r]
+        if count > 0:  # Only show residues that actually occur
+            percentage = float(count / total_even_composite * 100) if total_even_composite > 0 else 0
+            # For even numbers, show which residues are even
+            parity_note = " (even)" if r % 2 == 0 else " (odd)"
+            print(f"  n ≡ {r} (mod {mod}): {count} composites ({percentage:.1f}%){parity_note}")
+
+# SPECIAL ANALYSIS FOR EVEN NUMBERS
+print("\n" + "="*60)
+print("SPECIAL ANALYSIS FOR EVEN n VALUES")
+print("="*60)
+
+# Focus on mod 4 and mod 6 patterns (most revealing for even numbers)
+print("\nDetailed Mod 4 analysis for even composites:")
+mod4_counts = {r: [] for r in range(4)}
+
+for n in even_composite_values:
+    residue = n % 4
+    mod4_counts[residue].append(n)
+
+for r in range(4):
+    count = len(mod4_counts[r])
+    if count > 0:
+        percentage = float(count / len(even_composite_values) * 100) if even_composite_values else 0
+        examples = mod4_counts[r][:5] if mod4_counts[r] else []
+        parity = "even" if r % 2 == 0 else "odd"
+        print(f"  n ≡ {r} (mod 4): {count} composites ({percentage:.1f}%) - {parity} n values")
+        if examples:
+            print(f"    Examples: {examples}")
+
+print("\nDetailed Mod 6 analysis for even composites:")
+mod6_counts = {r: [] for r in range(6)}
+
+for n in even_composite_values:
+    residue = n % 6
+    mod6_counts[residue].append(n)
+
+for r in range(6):
+    count = len(mod6_counts[r])
+    if count > 0:
+        percentage = float(count / len(even_composite_values) * 100) if even_composite_values else 0
+        examples = mod6_counts[r][:5] if mod6_counts[r] else []
+        parity = "even" if r % 2 == 0 else "odd"
+        print(f"  n ≡ {r} (mod 6): {count} composites ({percentage:.1f}%) - {parity} n values")
+        if examples:
+            print(f"    Examples: {examples}")
+
+# CHECK FOR SYSTEMATIC PATTERNS
+print("\n" + "="*60)
+print("SYSTEMATIC PATTERN DETECTION")
+print("="*60)
+
+# Check if certain even residues ALWAYS give composites
+print("Even residues that ALWAYS give composites (in range 1-1000):")
+for mod in [2, 4, 6, 8]:
+    for r in range(mod):
+        if r % 2 == 0:  # Only consider even residues
+            total_even_in_residue = len([x for x in range(1, 1001) if x % mod == r and x % 2 == 0])
+            composite_even_in_residue = len([n for n in even_composite_values if n % mod == r])
+            if total_even_in_residue > 0 and composite_even_in_residue == total_even_in_residue:
+                print(f"  ★ n ≡ {r} (mod {mod}) ALWAYS gives composites for even n!")
+
+# Check if certain even residues NEVER give primes
+print(f"\nEven residues that NEVER give primes (in range 1-1000):")
+for mod in [2, 4, 6]:
+    for r in range(mod):
+        if r % 2 == 0:  # Only even residues
+            total_even_in_residue = len([x for x in range(1, 1001) if x % mod == r and x % 2 == 0])
+            prime_even_in_residue = len([n for n in even_prime_values if n % mod == r])
+            if total_even_in_residue > 0 and prime_even_in_residue == 0:
+                print(f"  n ≡ {r} (mod {mod}) gives 0 primes out of {total_even_in_residue} even values")
+
+# ALGEBRAIC ANALYSIS FOR EVEN n
+print("\n" + "="*60)
+print("ALGEBRAIC ANALYSIS FOR EVEN n")
+print("="*60)
+
+# Substitute n = 2k to see the polynomial structure for even n
+R.<k> = PolynomialRing(QQ)
+poly_even = f(2*k)  # f(n) with n = 2k
+print(f"Polynomial for even n (n = 2k):")
+print(f"f(2k) = {poly_even}")
+
+# Factor the even polynomial
+factorization_even = poly_even.factor()
+print(f"Factorization: {factorization_even}")
+
+# Check if it always has small factors for even n
+print(f"\nChecking for small factors in f(2k):")
+for p in [2, 3, 5, 7]:
+    poly_mod_p = poly_even.change_ring(GF(p))
+    print(f"  Mod {p}: f(2k) ≡ {poly_mod_p}")
+    try:
+        # Use multiplicities=False to avoid the NotImplementedError
+        roots = poly_mod_p.roots(multiplicities=False)
+        if roots:
+            print(f"    Always divisible by {p} when: {[f'k ≡ {r} (mod {p})' for r in roots]}")
+        else:
+            print(f"    No roots mod {p}")
+    except Exception as e:
+        print(f"    Error finding roots mod {p}: {e}")
+
+# Check the actual polynomial values for small even n
+print(f"\nPolynomial behavior for small even n:")
+for n in [2, 4, 6, 8, 10]:
+    value = f(n)
+    factors = factor(value) if not is_prime(value) else "PRIME"
+    print(f"  n = {n}: f({n}) = {value} = {factors}")
+
+# Check divisibility patterns directly
+print(f"\nDirect divisibility analysis for even n:")
+for p in [2, 3, 5, 7]:
+    divisible_count = 0
+    for n in even_composite_values[:20]:  # Check first 20 even composites
+        if f(n) % p == 0:
+            divisible_count += 1
+    if divisible_count > 0:
+        print(f"  Divisible by {p}: {divisible_count}/20 of first even composites")
+
+# DENSITY ANALYSIS FOR EVEN n
+print("\n" + "="*60)
+print("DENSITY ANALYSIS FOR EVEN n")
+print("="*60)
+
+# Analyze density in ranges for even numbers only
+ranges = [(2, 100), (102, 200), (202, 300), (302, 400), (402, 500),
+          (502, 600), (602, 700), (702, 800), (802, 900), (902, 1000)]
+
+print("Even composite density by range:")
+for start, end in ranges:
+    if start % 2 != 0:
+        start += 1  # Ensure we start with even number
+    total_even_in_range = len([x for x in range(start, end+1) if x % 2 == 0])
+    composite_even_in_range = len([n for n in even_composite_values if start <= n <= end])
+    density = float(composite_even_in_range / total_even_in_range * 100) if total_even_in_range > 0 else 0
+    
+    print(f"  n = {start}-{end} (even): {composite_even_in_range}/{total_even_in_range} composites ({density:.1f}%)")
+
+# COMPARISON WITH ODD n
+print("\n" + "="*60)
+print("COMPARISON: EVEN vs ODD n")
+print("="*60)
+
+total_even = len(even_composite_values) + len(even_prime_values)
+total_odd = len(odd_composite_values) + len(odd_prime_values)
+
+even_composite_rate = float(len(even_composite_values) / total_even * 100) if total_even > 0 else 0
+odd_composite_rate = float(len(odd_composite_values) / total_odd * 100) if total_odd > 0 else 0
+
+print(f"Composite rates:")
+print(f"  Even n: {len(even_composite_values)}/{total_even} = {even_composite_rate:.1f}%")
+print(f"  Odd n:  {len(odd_composite_values)}/{total_odd} = {odd_composite_rate:.1f}%")
+
+if even_composite_rate > odd_composite_rate:
+    print(f"★ Even n values are MORE LIKELY to produce composites")
+elif even_composite_rate < odd_composite_rate:
+    print(f"★ Odd n values are MORE LIKELY to produce composites")
+else:
+    print(f"★ Even and odd n values are equally likely to produce composites")
+
+# ARITHMETIC PROGRESSIONS IN EVEN COMPOSITES
+print("\n" + "="*60)
+print("ARITHMETIC PROGRESSIONS IN EVEN COMPOSITES")
+print("="*60)
+
+# Look for arithmetic progressions specifically in even composite values
+def find_even_arithmetic_progressions(values, max_diff=20, min_length=5):
+    progressions = []
+    values_sorted = sorted(values)
+    
+    for i in range(len(values_sorted)):
+        for j in range(i+1, min(i+100, len(values_sorted))):
+            diff = values_sorted[j] - values_sorted[i]
+            if diff > 0 and diff <= max_diff and diff % 2 == 0:  # Even difference for even numbers
+                # Check if this forms a progression
+                progression = [values_sorted[i], values_sorted[j]]
+                next_val = values_sorted[j] + diff
+                while next_val in values_sorted and len(progression) < min_length:
+                    progression.append(next_val)
+                    next_val += diff
+                
+                if len(progression) >= min_length:
+                    progressions.append((diff, progression))
+    
+    return progressions
+
+even_composite_progressions = find_even_arithmetic_progressions(even_composite_values)
+if even_composite_progressions:
+    print("Found arithmetic progressions in even composite values:")
+    for diff, progression in even_composite_progressions[:3]:  # Show first 3
+        print(f"  Difference {diff}: {progression}")
+else:
+    print("No significant arithmetic progressions found in even composites")
+
+# FINAL SUMMARY FOR EVEN n PATTERNS
+print("\n" + "="*60)
+print("KEY PATTERNS FOR EVEN n VALUES")
+print("="*60)
+
+print("Most significant patterns for even n:")
+
+# 1. Dominant mod 4 residues
+mod4_even_counts = [len([n for n in even_composite_values if n % 4 == r]) for r in [0,2]]
+print(f"1. Mod 4: {mod4_even_counts[0]} ≡ 0, {mod4_even_counts[1]} ≡ 2")
+
+# 2. Dominant mod 6 residues (only even ones: 0, 2, 4)
+mod6_even_counts = [len([n for n in even_composite_values if n % 6 == r]) for r in [0,2,4]]
+print(f"2. Mod 6: {mod6_even_counts[0]} ≡ 0, {mod6_even_counts[1]} ≡ 2, {mod6_even_counts[2]} ≡ 4")
+
+# 3. First few even composite values
+print(f"3. First 10 even composite n values: {even_composite_values[:10]}")
+
+# 4. First few even prime values (if any)
+if even_prime_values:
+    print(f"4. Even n values that produce primes: {even_prime_values}")
+else:
+    print(f"4. No even n values produce primes in range 1-1000")
+
+# 5. Show some factorizations for even n
+print(f"\n5. Factorization examples for even n:")
+for n in even_composite_values[:5]:
+    value = f(n)
+    factors = factor(value)
+    print(f"   n = {n}: f({n}) = {value} = {factors}")
+
+print("\n" + "="*60)
+print("EVEN n ANALYSIS COMPLETE")
+print("="*60)
