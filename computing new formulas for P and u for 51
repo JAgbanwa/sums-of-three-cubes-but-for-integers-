@@ -1,0 +1,54 @@
+# Optimized version with better factoring
+print("=== OPTIMIZED VERSION ===")
+
+# Let's factor common terms
+def optimize_expression(expr):
+    """Factor and simplify expression nicely"""
+    expr_simplified = expr.full_simplify()
+    expr_factored = expr_simplified.factor()
+    return expr_factored
+
+# Your original expressions
+lambda_expr = -153*(6*n + 3)^2 * (2*n + 1) / (2*(36*n^3 + 54*n^2 + 27*n - 4))
+u_2G_original = lambda_expr^2 - 6*(2*n + 1)^2
+P_2G_original = lambda_expr * (3*(2*n + 1)^2 - u_2G_original) - (36*n^3 + 54*n^2 + 27*n - 4)
+
+print("Original lambda expression:")
+print(f"λ = {lambda_expr}")
+print()
+
+print("Optimized lambda expression:")
+lambda_opt = optimize_expression(lambda_expr)
+print(f"λ = {lambda_opt}")
+print()
+
+print("Optimized u_{2G}:")
+u_2G_opt = optimize_expression(u_2G_original)
+print(f"u_{{2G}} = {u_2G_opt}")
+print()
+
+print("Optimized P_{2G}:")
+P_2G_opt = optimize_expression(P_2G_original)
+print(f"P_{{2G}} = {P_2G_opt}")
+print()
+
+# Test with specific n values
+print("=== TEST WITH SPECIFIC n VALUES ===")
+test_values = [0, 1, 2, 77]
+
+for n_val in test_values:
+    print(f"\n--- n = {n_val} ---")
+    
+    # Substitute numeric value
+    u_2G_val = u_2G_original.subs(n=n_val)
+    P_2G_val = P_2G_original.subs(n=n_val)
+    A_val_num = A.subs(n=n_val)
+    B_val_num = B.subs(n=n_val)
+    
+    print(f"u_{{2G}} = {u_2G_val}")
+    print(f"P_{{2G}} = {P_2G_val}")
+    
+    # Verify on curve
+    lhs = P_2G_val^2
+    rhs = u_2G_val^3 + A_val_num*u_2G_val + B_val_num
+    print(f"On curve: {lhs == rhs}")
