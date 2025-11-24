@@ -1,0 +1,76 @@
+# Test validity of (u, P) values on elliptic curve E_{51,r}
+reset()
+n = var('n')
+
+print("TESTING VALIDITY OF (u, P) ON ELLIPTIC CURVE E_{51,r}")
+print("=" * 70)
+
+# Given parameters
+k = 51
+r = 6*n + 3
+
+# Elliptic curve coefficients
+A = -102*n - 51
+B = -(r^6/108 - 51*r^3/18 - 2601/36)
+
+print("Elliptic curve: P^2 = u^3 + A*u + B")
+print(f"A = {A}")
+print(f"B = {B}")
+print()
+
+# Your calculated u value
+u = ((27*(2*n + 1)^4 + (-102*n - 51)) / (2*(36*n^3 + 54*n^2 + 27*n - 4)))^2 - 6*(2*n + 1)^2
+
+print("Your calculated u:")
+print("u =", u)
+print()
+
+# Your calculated P value  
+P = ((27*(2*n + 1)^4 + (-102*n - 51)) / (2*(36*n^3 + 54*n^2 + 27*n - 4))) * (3*(2*n + 1)^2 - u) - (36*n^3 + 54*n^2 + 27*n - 4)
+
+print("Your calculated P:")
+print("P =", P)
+print()
+
+# Test for n = 1,2,3,4,5
+print("TESTING FOR n = 1,2,3,4,5")
+print("=" * 70)
+
+test_values = [1, 2, 3, 4, 5]
+
+for n_val in test_values:
+    print(f"\n{'='*50}")
+    print(f"n = {n_val}")
+    print(f"{'='*50}")
+    
+    try:
+        # Substitute numerical values
+        u_val = u.subs(n=n_val)
+        P_val = P.subs(n=n_val)
+        A_val = A.subs(n=n_val)
+        B_val = B.subs(n=n_val)
+        
+        print(f"u = {u_val}")
+        print(f"P = {P_val}")
+        print(f"A = {A_val}")
+        print(f"B = {B_val}")
+        print()
+        
+        # Compute left-hand side: P^2
+        lhs = P_val^2
+        print(f"P^2 = {lhs}")
+        
+        # Compute right-hand side: u^3 + A*u + B
+        rhs = u_val^3 + A_val*u_val + B_val
+        print(f"u^3 + A*u + B = {rhs}")
+        print()
+        
+        # Check if they are equal
+        if lhs == rhs:
+            print("🎯 ✅ VALID: (u, P) lies on the elliptic curve!")
+        else:
+            print("❌ INVALID: (u, P) does not lie on the elliptic curve")
+            print(f"Difference: {lhs - rhs}")
+            
+    except Exception as e:
+        print(f"❌ Error computing for n={n_val}: {e}")
