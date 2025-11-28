@@ -1,0 +1,153 @@
+# Elliptic Curve: y^2 = x^3 + A(n)*x + B(n)
+# where A(n) = -102n - 51
+#       B(n) = -(432n^6 + 1296n^5 + 1620n^4 + 468n^3 - 513n^2 - 378n - 142)
+
+print("=" * 80)
+print("ELLIPTIC CURVE RATIONAL POINT FINDER")
+print("=" * 80)
+print("Curve: y^2 = x^3 + (-102n - 51)*x - (432n^6 + 1296n^5 + 1620n^4 + 468n^3 - 513n^2 - 378n - 142)")
+print()
+
+# Define polynomial ring for n
+R.<n> = PolynomialRing(QQ)
+
+# Define A(n) and B(n)
+A = -102*n - 51
+B = -(432*n^6 + 1296*n^5 + 1620*n^4 + 468*n^3 - 513*n^2 - 378*n - 142)
+
+print("A(n) =", A)
+print("B(n) =", B)
+print()
+
+# Method 1: Search for polynomial solutions x(n), y(n)
+print("=" * 80)
+print("METHOD 1: SEARCHING FOR POLYNOMIAL SOLUTIONS")
+print("=" * 80)
+
+def check_polynomial_point(x_poly, max_n=10):
+    """Check if x_poly gives a perfect square for y^2"""
+    y_squared = x_poly^3 + A*x_poly + B
+    y_squared_expanded = expand(y_squared)
+    
+    # Test numerically for several values of n
+    valid = True
+    test_values = []
+    
+    for n_val in range(-max_n, max_n + 1):
+        if n_val == 0:
+            continue
+        try:
+            x_val = x_poly(n=n_val)
+            y_sq_val = y_squared_expanded(n=n_val)
+            
+            if y_sq_val >= 0:
+                y_val = sqrt(y_sq_val)
+                if y_val^2 == y_sq_val:  # Perfect square check
+                    test_values.append((n_val, x_val, y_val))
+        except:
+            pass
+    
+    return y_squared_expanded, test_values
+
+# Try polynomial forms for x(n)
+print("\nTrying x(n) = an^2 + bn + c forms...\n")
+
+candidates = [
+    (12*n^2 + 6*n + 1, "12n^2 + 6n + 1"),
+    (12*n^2 + 6*n - 1, "12n^2 + 6n - 1"),
+    (12*n^2 - 6*n + 1, "12n^2 - 6n + 1"),
+    (6*n^2 + 3*n, "6n^2 + 3n"),
+    (3*n^2, "3n^2"),
+    (n^2, "n^2"),
+    (4*n^2, "4*n^2"),
+    (9*n^2, "9n^2"),
+    (n, "n"),
+    (3*n, "3n"),
+    (6*n, "6n"),
+]
+
+successful_points = []
+
+for x_candidate, x_name in candidates:
+    y_sq, test_vals = check_polynomial_point(x_candidate, max_n=5)
+    
+    if len(test_vals) > 0:
+        print(f"✓ x(n) = {x_name}")
+        print(f"  y^2 = {y_sq}")
+        
+        # Check if y^2 is a perfect square polynomial
+        # Try to find y(n) symbolically
+        print(f"  Valid for n values: {[t[0] for t in test_vals[:5]]}")
+        print(f"  Sample points (n, x, y):")
+        for t in test_vals[:3]:
+            print(f"    {t}")
+        
+        successful_points.append((x_name, x_candidate, y_sq))
+        print()
+
+# Method 2: Direct factorization approach
+print("=" * 80)
+print("METHOD 2: CHECKING FOR PERFECT SQUARE STRUCTURE")
+print("=" * 80)
+
+# For x(n) = 12n^2 + 6n + 1, compute y^2 explicitly
+x_test = 12*n^2 + 6*n + 1
+y_squared = expand(x_test^3 + A*x_test + B)
+
+print(f"\nFor x(n) = 12n^2 + 6n + 1:")
+print(f"y^2 = {y_squared}")
+print()
+
+# Try to factor y^2 as a perfect square
+print("Attempting to identify y(n) as a polynomial...")
+print()
+
+# Check degree and leading coefficient
+deg = y_squared.degree()
+print(f"Degree of y^2: {deg}")
+print(f"If y^2 is a perfect square, y(n) should have degree {deg/2}")
+print()
+
+# Extract coefficients
+coeffs = [y_squared[i] for i in range(deg + 1)]
+print("Coefficients of y^2 (from constant to highest degree):")
+for i, c in enumerate(coeffs):
+    if c != 0:
+        print(f"  n^{i}: {c}")
+print()
+
+# If it's a perfect square (an^3 + bn^2 + cn + d)^2, we can identify it
+if deg == 6:
+    # Leading term: a^2*n^6 should equal leading coeff
+    lead = coeffs[6]
+    if lead > 0:
+        a_coeff = sqrt(lead)
+        print(f"If y(n) = an^3 + bn^2 + cn + d, then a = ±{a_coeff}")
+        
+        # Try to construct y(n) by matching coefficients
+        for sign in [1, -1]:
+            y_candidate = sign * a_coeff * n^3
+            # Add more terms and check...
+            print(f"\nTrying y(n) = {sign * a_coeff}n^3 + ...")
+
+# Method 3: Numerical verification for specific n values
+print("=" * 80)
+print("METHOD 3: NUMERICAL VERIFICATION")
+print("=" * 80)
+
+print("\nFor x(n) = 12n^2 + 6n + 1, computing (n, x, y) points:\n")
+print(f"{'n':>5} {'x(n)':>10} {'y(n)':>15}")
+print("-" * 35)
+
+for n_val in range(-5, 6):
+    x_val = 12*n_val^2 + 6*n_val + 1
+    y_sq_val = x_val^3 + (-102*n_val - 51)*x_val - (432*n_val^6 + 1296*n_val^5 + 1620*n_val^4 + 468*n_val^3 - 513*n_val^2 - 378*n_val - 142)
+    
+    if y_sq_val >= 0:
+        y_val = sqrt(y_sq_val)
+        if y_val^2 == y_sq_val:
+            # Convert to strings first to avoid format issues
+            print(f"{str(n_val):>5} {str(x_val):>10} {str(y_val):>15}")
+
+print()
+print("=" * 80)
